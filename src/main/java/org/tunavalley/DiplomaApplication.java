@@ -56,7 +56,8 @@ public class DiplomaApplication {
             File pdfFile = new File(inputDir, baseName + PDF_EXTENSION);
 
             if (!pdfFile.exists()) {
-                throw new RuntimeException("Expected template file " + pdfFile.getName() + " does not exist");
+                //ignore list file because template is not present
+                continue;
             }
 
             File parentOutput = new File(outputDir, baseName);
