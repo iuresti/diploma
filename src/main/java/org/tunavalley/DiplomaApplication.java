@@ -21,9 +21,14 @@ import com.itextpdf.text.pdf.PdfWriter;
 public class DiplomaApplication {
 
 
+    private static final String INPUT_DIRECTORY = "input";
+    private static final String OUTPUT_DIRECTORY = "output";
+    private static final String PDF_EXTENSION = ".pdf";
+    private static final String LIST_EXTENSION = ".list";
+
     public static void main(String[] args) throws Exception {
-        File inputDir = new File("input");
-        File outputDir = new File("output");
+        File inputDir = new File(INPUT_DIRECTORY);
+        File outputDir = new File(OUTPUT_DIRECTORY);
 
         if (!inputDir.exists()) {
             throw new RuntimeException("input directory does not exist");
@@ -33,17 +38,22 @@ public class DiplomaApplication {
             throw new RuntimeException("output directory can't be created");
         }
 
-        File[] listFiles = inputDir.listFiles(pathname -> pathname.getName().endsWith(".list"));
+        File[] listFiles = inputDir.listFiles(pathname -> pathname.getName().endsWith(LIST_EXTENSION));
 
         if (listFiles == null || listFiles.length == 0) {
             throw new RuntimeException("No .list files found in input directory");
         }
 
+        generateDiplomasFromListFiles(inputDir, outputDir, listFiles);
+    }
+
+    private static void generateDiplomasFromListFiles(File inputDir, File outputDir, File[] listFiles) throws IOException, DocumentException {
+
         for (File listFile : listFiles) {
             String baseName = listFile.getName();
 
             baseName = baseName.substring(0, baseName.lastIndexOf('.'));
-            File pdfFile = new File(inputDir, baseName + ".pdf");
+            File pdfFile = new File(inputDir, baseName + PDF_EXTENSION);
 
             if (!pdfFile.exists()) {
                 throw new RuntimeException("Expected template file " + pdfFile.getName() + " does not exist");
@@ -51,18 +61,22 @@ public class DiplomaApplication {
 
             File parentOutput = new File(outputDir, baseName);
 
-            if(!parentOutput.mkdir()){
+            if (!parentOutput.mkdir()) {
                 throw new RuntimeException("Can't create directory " + parentOutput);
             }
 
-            Scanner scanner = new Scanner(listFile);
+            generateDiplomasFromTemplate(listFile, pdfFile, parentOutput);
+        }
+    }
 
-            while (scanner.hasNext()) {
-                String name = scanner.nextLine().trim();
-                if (!name.isEmpty()) {
-                    File outputFile = new File(parentOutput, name + ".pdf");
-                    writeUsingIText(pdfFile, outputFile, name);
-                }
+    private static void generateDiplomasFromTemplate(File listFile, File pdfFile, File parentOutput) throws IOException, DocumentException {
+        Scanner scanner = new Scanner(listFile);
+
+        while (scanner.hasNext()) {
+            String name = scanner.nextLine().trim();
+            if (!name.isEmpty()) {
+                File outputFile = new File(parentOutput, name + PDF_EXTENSION);
+                writeUsingIText(pdfFile, outputFile, name);
             }
         }
     }
