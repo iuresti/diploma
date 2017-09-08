@@ -40,10 +40,19 @@ public class DiplomaApplication {
         }
 
         for (File listFile : listFiles) {
-            File pdfFile = new File(inputDir, listFile.getName().replace(".list", ".pdf"));
+            String baseName = listFile.getName();
+
+            baseName = baseName.substring(0, baseName.lastIndexOf('.'));
+            File pdfFile = new File(inputDir, baseName + ".pdf");
 
             if (!pdfFile.exists()) {
                 throw new RuntimeException("Expected template file " + pdfFile.getName() + " does not exist");
+            }
+
+            File parentOutput = new File(outputDir, baseName);
+
+            if(!parentOutput.mkdir()){
+                throw new RuntimeException("Can't create directory " + parentOutput);
             }
 
             Scanner scanner = new Scanner(listFile);
@@ -51,7 +60,7 @@ public class DiplomaApplication {
             while (scanner.hasNext()) {
                 String name = scanner.nextLine().trim();
                 if (!name.isEmpty()) {
-                    File outputFile = new File(outputDir, name + ".pdf");
+                    File outputFile = new File(parentOutput, name + ".pdf");
                     writeUsingIText(pdfFile, outputFile, name);
                 }
             }
