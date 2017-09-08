@@ -27,8 +27,14 @@ public class DiplomaApplication {
     private static final String LIST_EXTENSION = ".list";
 
     public static void main(String[] args) throws Exception {
-        File inputDir = new File(INPUT_DIRECTORY);
-        File outputDir = new File(OUTPUT_DIRECTORY);
+        File workingDirectory = args.length > 0 ? new File(args[0]) : new File(".");
+
+        if (!workingDirectory.exists()) {
+            throw new RuntimeException("Directory " + workingDirectory.getAbsolutePath() + " must exist");
+        }
+
+        File inputDir = new File(workingDirectory, INPUT_DIRECTORY);
+        File outputDir = new File(workingDirectory, OUTPUT_DIRECTORY);
 
         if (!inputDir.exists()) {
             throw new RuntimeException("input directory does not exist");
